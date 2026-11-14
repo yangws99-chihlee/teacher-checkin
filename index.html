@@ -70,7 +70,7 @@ code{word-break:break-all;background:#f6f6f6;padding:6px 8px;border-radius:6px;d
 <p>班級：<b id="classLabel2">請先選擇班級</b> · 老師：<b>楊老師</b> · 類型：<b id="studentTypeLabel">簽到</b></p>
 <label>請選擇你的班級</label><select id="studentClassSelect" onchange="setClass(this.value);document.getElementById('studentClassInfo').textContent='你正在簽到：'+currentClassName"><option value="A">A 班：化學 - 週五班89</option><option value="B">B 班：現代科技與生活 - 週五班晚34</option><option value="C">C 班：生成式AI與創意應用 - 週四班12</option><option value="D">D 班：生成式AI與創意應用 - 週四班34</option><option value="E">E 班：創意與創造 - 週三班12</option><option value="F">F 班：創意與創造 - 週三班34</option><option value="G">G 班：創意與創造 - 週三班56</option></select><p id="studentClassInfo" class="muted" style="background:#e8f8ef;padding:8px;border-radius:8px"></p><p id="studentSessionInfo" class="muted"></p><p class="muted" style="background:#fff7e6;padding:8px;border-radius:8px">⚠️ 防代簽：同一台手機只能幫一個人簽到。已簽過就無法再幫其他同學簽。</p><p id="deviceInfo" class="muted"></p>
 <label>學號（5 至 10 碼數字，例如 51234567）</label>
-<input id="studentId" placeholder="請輸入 5 至 10 碼數字" maxlength="8" inputmode="numeric">
+<input id="studentId" placeholder="請輸入 5 至 10 碼數字" maxlength="10" inputmode="numeric">
 
 <label>姓名（輸入學號自動顯示，不用再打）</label>
 <input id="studentName" placeholder="輸入學號後自動顯示姓名，若無顯示請手動輸入"><p id="nameHint" class="muted"></p>
@@ -86,7 +86,7 @@ code{word-break:break-all;background:#f6f6f6;padding:6px 8px;border-radius:6px;d
 // ===== Google 試算表後端設定 =====
 // 步驟：把你的 Apps Script 佈署網址貼在下面，取代 PASTE_YOUR_GAS_URL_HERE
 // 例如：https://script.google.com/macros/s/XXXX/exec
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxY0rVyqdVybrJDFrIn2Zznvp6Rf_9MOCUFxr6Mf-7zi-tcwPhypQF0wAwAejVDR3oW/exec";
+const GAS_URL = "script.google.com/macros/s/AKfycbxY0rVyqdVybrJDFrIn2Zznvp6Rf_9MOCUFxr6Mf-7zi-tcwPhypQF0wAwAejVDR3oW/exec";
 const TEACHER_PIN = "8888";
 
 const CLASSES = {
@@ -194,8 +194,8 @@ document.getElementById('studentId').addEventListener('input', e=>{
  const nm = getCurrentRoster()[v];
  const nameInput=document.getElementById('studentName');
  const hint=document.getElementById('nameHint');
- if(v.length===8 && nm){ nameInput.value=nm; if(hint) hint.textContent='已找到：'+nm+'，不用再打名字，直接按確認簽到'; hint.style.color='#0a9d5c'; }
- else if(v.length===8){ nameInput.value=''; if(hint) hint.textContent='查無此學號，請確認學號是否正確'; hint.style.color='#b00'; }
+ if(v.length>=5 && nm){ nameInput.value=nm; if(hint) hint.textContent='已找到：'+nm+'，不用再打名字，直接按確認簽到'; hint.style.color='#0a9d5c'; }
+ else if(v.length>=5){ nameInput.value=''; if(hint) hint.textContent='查無此學號，請確認學號是否正確'; hint.style.color='#b00'; }
  else { nameInput.value=''; if(hint) hint.textContent=''; }
 });
 function getDeviceId(){
