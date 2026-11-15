@@ -223,7 +223,12 @@ function doCheckin(){
  if(!autoName){
    // 若老師尚未貼入名單，允許手動輸入姓名（暫時模式）
    const manual = document.getElementById('studentName').value.trim();
-   if(manual){ autoName = manual; } else { msg.innerHTML='<div class="error">查無此學號，請確認學號是否正確，或請手動輸入姓名</div>'; document.getElementById('studentName').readOnly=false; document.getElementById('studentName').style.background='#fff'; return; }
+   var rosterNow = getCurrentRoster();
+  var hasRoster = Object.keys(rosterNow).length > 0;
+  if(hasRoster && !rosterNow[id]){
+    msg.innerHTML='<div class="error">查無此學號：你現在是「'+currentClassName+'」，學號 '+id+' 不在這個班的名單裡。<br>請確認你掃的是自己班的 QR-Code，或學號有沒有打錯。請不要自行輸入姓名。</div>'; return;
+  }
+  if(manual){ autoName = manual; } else { msg.innerHTML='<div class="error">查無此學號，請確認學號是否正確，或請手動輸入姓名</div>'; document.getElementById('studentName').readOnly=false; document.getElementById('studentName').style.background='#fff'; return; }
  }
  const finalName = autoName;
  document.getElementById('studentName').value = finalName;
@@ -231,6 +236,14 @@ function doCheckin(){
  const deviceLabel = getDeviceLabel();
  // 輕量防代簽：同一裝置已幫其他學號簽過同類型，就擋下
  const params0 = new URLSearchParams(window.location.search);
+  // 學生掃 QR 進來：自動鎖定 QR 裡的班級，不用學生自己選，也不能選錯
+  var clsFromQR = params0.get('cls');
+  if (params0.get('mode') === 'student' && clsFromQR && CLASSES[clsFromQR]) {
+    currentClass = clsFromQR;
+    currentClassName = CLASSES[clsFromQR].name;
+    var sel = document.getElementById('classSelect'); if (sel) { sel.value = clsFromQR; sel.disabled = true; }
+    var cl = document.getElementById('classLabel'); if (cl) cl.textContent = currentClassName + '（已由 QR-Code 鎖定，不用再選）';
+  }
  const type0 = params0.get('k')||document.getElementById('checkType').value;
  // 取得目前場次 ID（從 QR 連結的 s 參數來），新的一堂課會有新的 s，所以可以重新簽
  const currentSession = params0.get('s') || 'NO_SESSION';
@@ -322,7 +335,7 @@ function emailCSV(){
 (function(){
  const p=new URLSearchParams(window.location.search);
  const clsParam = p.get('cls'); if(clsParam && CLASSES[clsParam]){ setClass(clsParam); } if(p.get('mode')==='student'){ isStudentMode=true; const tt=document.getElementById('tabTeacher'); if(tt) tt.style.display='none'; const note=document.createElement('p'); note.textContent='學生掃碼模式：已隱藏老師端，無法切換到老師操作'; note.className='muted'; note.style.background='#fff7e6'; note.style.padding='8px'; note.style.borderRadius='8px'; document.querySelector('.wrap').prepend(note); showTab('student'); const k=p.get('k'); if(k) document.getElementById('studentTypeLabel').textContent = k==='checkout'?'簽退':'簽到';
-  document.getElementById('studentClassInfo').textContent='你正在簽到：'+currentClassName+'，輸入學號會自動顯示姓名';
+  document.getElementById('studentClassInfo').textContent='你正在簽到：'+currentClassName+'（QR-Code 已鎖定班級），輸入學號會自動顯示姓名';
  document.getElementById('studentSessionInfo').textContent='你正在掃碼簽到，場次：'+(p.get('s')||'')+' · 這是新的一堂課，可以用同一支手機重新簽到'; }
  const di=document.getElementById('deviceInfo'); if(di) di.textContent='你的裝置：'+getDeviceLabel(); renderList();
 })();
