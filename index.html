@@ -268,7 +268,7 @@ function doCheckin(){
  }
  records.push(rec); localStorage.setItem('chem_records', JSON.stringify(records));
  const s=document.getElementById('studentSuccess'); s.classList.remove('hidden');
- s.innerHTML='<h3>✅ '+(type==='checkin'?'簽到成功':'簽退成功')+'（'+status+'）</h3><p>'+name+'（'+id+'）<br>'+email+'<br>化學 / B44 / 楊老師<br>時間：'+rec.time+'</p><p class="muted">請將此畫面給老師看，或截圖留存。</p>';
+ s.innerHTML='<h3>✅ '+(type==='checkin'?'簽到成功':'簽退成功')+'（'+status+'）</h3><p>'+name+'（'+id+'）<br>'+currentClassName+' / 楊老師<br>時間：'+rec.time+'</p><p class="muted">請將此畫面給老師看，或截圖留存。</p>';
  const di=document.getElementById('deviceInfo'); if(di) di.textContent='你的裝置：'+getDeviceLabel(); renderList(); alert('簽到成功！已寫入 Google 試算表，老師端按同步即可看到。');
 }
 
@@ -316,7 +316,7 @@ function renderList(){
 function exportCSV(){
  const csv=document.getElementById('csvPreview').textContent || '尚無資料';
  const blob=new Blob(['\ufeff'+csv],{type:'text/csv'});
- const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='化學_B44_簽到.csv'; a.click();
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=currentClassName+'_簽到.csv'; a.click();
 }
 function copyCSV(){
  const csv=document.getElementById('csvPreview').textContent; navigator.clipboard.writeText(csv).then(()=>alert('已複製 CSV，可貼到 Line / Email / Excel'));
@@ -327,8 +327,8 @@ function copyLink(){
 function openStudentLink(){ showTab('student'); }
 function emailCSV(){
  const csv=document.getElementById('csvPreview').textContent || '尚無資料';
- const subject=encodeURIComponent('化學 B44 簽到/簽退資料 - 楊老師');
- const body=encodeURIComponent('楊老師您好，\n\n化學 / B44 簽到資料如下：\n\n'+csv+'\n\n請按傳送即可。');
+ const subject=encodeURIComponent(currentClassName+' 簽到/簽退資料 - 楊老師');
+ const body=encodeURIComponent('楊老師您好，\n\n簽到資料如下：\n\n'+csv+'\n\n請按傳送即可。');
  window.location.href='mailto:yangws99@gm.chihlee.edu.tw?subject='+subject+'&body='+body;
 }
 // 解析掃碼參數
