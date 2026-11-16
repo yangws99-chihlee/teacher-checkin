@@ -169,7 +169,7 @@ function renderQR(){
 function startSession(){
  try{
  const type = document.getElementById('checkType').value;
- session={id:'CHEM-'+Date.now().toString().slice(-6), type:type, start:new Date()};
+ session={id:( {A:'CHEM',B:'TECH',C:'GAI',D:'GAI',E:'CREA',F:'CREA',G:'CREA'}[currentClass]||currentClass)+'-'+Date.now().toString().slice(-6), type:type, start:new Date()};
  token=genToken(); countdown=10;
  document.getElementById('sessionStatus').textContent='進行中 - '+(type==='checkin'?'簽到':'簽退')+' 開始於 '+session.start.toLocaleTimeString();
  document.getElementById('qrArea').classList.remove('hidden');
