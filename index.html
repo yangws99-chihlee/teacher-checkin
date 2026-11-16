@@ -46,7 +46,7 @@ code{word-break:break-all;background:#f6f6f6;padding:6px 8px;border-radius:6px;d
 <button class="btn btn-gray" onclick="startNewClass()">🔄 重新開始新一堂課（清除舊資料）</button><p class="muted">上課前先按這個，會清掉測試的 2 筆資料，再按「開始簽到」就是全新的名單。</p><button class="btn btn-primary" id="startBtn" onclick="startSession()">開始簽到</button>
 <button class="btn btn-gray hidden" id="stopBtn" onclick="stopSession()">結束簽到</button>
 <div id="qrArea" class="hidden">
-<div class="center"><div class="big" id="qrTitle">請掃描簽到</div><p id="qrCountdown">QR-Code 每 30 秒自動更新 · 剩餘 30 秒</p><div id="qrcode"></div>
+<div class="center"><div class="big" id="qrTitle">請掃描簽到</div><p id="qrCountdown">QR-Code 每 10 秒自動更新 · 剩餘 10 秒</p><div id="qrcode"></div>
 <p class="muted">Android 相機一掃就開（部署為 https 後）。若相機沒反應，請用 Google Lens 掃，或用下方連結。</p>
 <code id="qrUrlText"></code><p id="qrDebug" class="muted">如果 QR 還是空白，請檢查網路是否能連 api.qrserver.com，或直接用下方連結。</p>
 <button class="btn btn-outline" onclick="copyLink()">複製學生簽到連結</button>
@@ -125,7 +125,7 @@ let TOTAL_STUDENTS = 0; // 會依選擇班級動態更新，見 setClass
  // 老師端密碼，預設 8888，請老師自行改成自己記得住的 4 碼
 const USE_GAS = GAS_URL && GAS_URL.startsWith("https://");
 
-let session=null, timer=null, token='', countdown=30;
+let session=null, timer=null, token='', countdown=10;
 let records = JSON.parse(localStorage.getItem('chem_records')||'[]');
 let isStudentMode = false;
 function showTab(t){
@@ -170,7 +170,7 @@ function startSession(){
  try{
  const type = document.getElementById('checkType').value;
  session={id:'CHEM-'+Date.now().toString().slice(-6), type:type, start:new Date()};
- token=genToken(); countdown=30;
+ token=genToken(); countdown=10;
  document.getElementById('sessionStatus').textContent='進行中 - '+(type==='checkin'?'簽到':'簽退')+' 開始於 '+session.start.toLocaleTimeString();
  document.getElementById('qrArea').classList.remove('hidden');
  document.getElementById('startBtn').classList.add('hidden');
@@ -178,8 +178,8 @@ function startSession(){
  document.getElementById('qrTitle').textContent = type==='checkin' ? '請掃描簽到' : '請掃描簽退';
  renderQR();
  clearInterval(timer);
- timer=setInterval(()=>{ countdown--; document.getElementById('qrCountdown').textContent='QR-Code 每 30 秒自動更新 · 剩餘 '+countdown+' 秒';
-  if(countdown<=0){ token=genToken(); countdown=30; renderQR(); } },1000);
+ timer=setInterval(()=>{ countdown--; document.getElementById('qrCountdown').textContent='QR-Code 每 10 秒自動更新 · 剩餘 '+countdown+' 秒';
+  if(countdown<=0){ token=genToken(); countdown=10; renderQR(); } },1000);
  }catch(err){ alert('開始簽到失敗：'+err.message+'，請重新整理頁面再試'); }
 }
 function stopSession(){
