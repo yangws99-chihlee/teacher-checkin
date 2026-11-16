@@ -31,6 +31,18 @@ code{word-break:break-all;background:#f6f6f6;padding:6px 8px;border-radius:6px;d
 </style>
 </head>
 <body>
+
+<div id="pinOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:100%;text-align:center;">
+    <h2 style="margin:0 0 8px;">老師端 · 請輸入密碼</h2>
+    <p style="color:#666;margin:0 0 12px;">密碼是 <b>6 碼</b>，輸入時會顯示為 ●●●●●●，全班看不到</p>
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="6" placeholder="請輸入 6 碼密碼" style="width:100%;padding:14px;font-size:22px;letter-spacing:8px;text-align:center;border:2px solid #ddd;border-radius:10px;box-sizing:border-box;">
+    <button onclick="checkTeacherPin()" style="width:100%;margin-top:12px;padding:14px;font-size:18px;background:#6c5ce7;color:#fff;border:none;border-radius:10px;">確認進入老師端</button>
+    <p id="pinError" style="color:#c00;margin:10px 0 0;display:none;">密碼錯誤，請再試一次</p>
+    <p style="color:#999;font-size:13px;margin:12px 0 0;">學生請按瀏覽器返回，或掃 QR-Code 進入學生端，不用輸入老師密碼</p>
+  </div>
+</div>
+
 <header><h1>楊老師 · 7 班通用點名系統</h1><p>學號為 5 至 10 碼數字</p></header>
 <div class="wrap">
 <div class="tabs"><button id="tabTeacher" class="active" onclick="showTab('teacher')">老師端</button><button id="tabStudent" onclick="showTab('student')">學生端</button></div>
@@ -87,7 +99,7 @@ code{word-break:break-all;background:#f6f6f6;padding:6px 8px;border-radius:6px;d
 // 步驟：把你的 Apps Script 佈署網址貼在下面，取代 PASTE_YOUR_GAS_URL_HERE
 // 例如：https://script.google.com/macros/s/XXXX/exec
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxY0rVyqdVybrJDFrIn2Zznvp6Rf_9MOCUFxr6Mf-7zi-tcwPhypQF0wAwAejVDR3oW/exec";
-const TEACHER_PIN = "8888";
+const TEACHER_PIN = "550714";
 
 const CLASSES = {
   A: { name: '化學 - 週五班89', code: 'A' },
@@ -122,16 +134,30 @@ function setClass(cls){
 const ROSTER = {"51102101": "酈以信", "51102137": "莊函璇", "51102146": "黃靖雯", "51102162": "蔡念竺", "51111103": "林芯柔", "51111114": "盧蔚瀅", "51111116": "蕭丞妘", "51111118": "廖妍婷", "51111127": "蔣瑋柏", "51208104": "王詠誠", "51208107": "郭秦安", "51208142": "陳睿軒", "51208157": "王品淳", "51211123": "張郁琦", "51211134": "黃家竩", "51311112": "蔡欣霓", "51311117": "李承翰", "51411101": "陳乙瑩", "51411102": "潘芊君", "51411103": "陳栢薰", "51411104": "王冠琳", "51411105": "陳宜如", "51411106": "陳映彤", "51411107": "錢瑞竺", "51411108": "張芯瑜", "51411109": "羅又綺", "51411110": "黃品璇", "51411111": "王湘惠", "51411112": "周子昀", "51411113": "王奕涵", "51411114": "陳霈臻", "51411115": "溫紫軒", "51411116": "許珈瑄", "51411117": "陳畇蓁", "51411118": "趙宥閔", "51411119": "林睿瑜", "51411120": "鄒采穎", "51411121": "姚宇潔", "51411122": "林煥宸", "51411123": "吳玥儀", "51411124": "林知妍", "51411125": "游沛亞", "51411126": "黃優莉", "51411127": "徐詩婷", "51411128": "賴竽澄", "51411129": "吳若菡", "51411130": "楊予彤", "51411131": "陳翊忻", "51411133": "王秭唯", "51411134": "林芯瑩", "51411135": "陳奕勛", "51411136": "許芳睿", "51411137": "劉子綺", "51411138": "余婕昕", "51411139": "蔡沛彤", "51411140": "連珈儀", "51411141": "莊沛穎", "51411142": "張有志", "51411143": "簡亨諭", "51411144": "黃玟妤", "51411145": "白香盈"};
 const LATE_MINUTES = 10;
 let TOTAL_STUDENTS = 0; // 會依選擇班級動態更新，見 setClass
- // 老師端密碼，預設 8888，請老師自行改成自己記得住的 4 碼
+ // 老師端密碼，6 碼，請老師自行改成自己記得住的 4 碼
 const USE_GAS = GAS_URL && GAS_URL.startsWith("https://");
 
 let session=null, timer=null, token='', countdown=10;
 let records = JSON.parse(localStorage.getItem('chem_records')||'[]');
 let isStudentMode = false;
+window.addEventListener('load', function(){ var p = new URLSearchParams(window.location.search); if(p.get('mode')==='student'){ var o=document.getElementById('pinOverlay'); if(o) o.style.display='none'; } else { var o2=document.getElementById('pinOverlay'); if(o2) o2.style.display='flex'; var tv=document.getElementById('teacherView'); if(tv) tv.classList.add('hidden'); } });
+
+function checkTeacherPin(){
+  var v = document.getElementById('pinInput').value.trim();
+  if(v === TEACHER_PIN){
+    document.getElementById('pinOverlay').style.display='none';
+    document.getElementById('teacherView').classList.remove('hidden');
+    document.getElementById('studentView').classList.add('hidden');
+  } else {
+    var e = document.getElementById('pinError'); if(e) e.style.display='block';
+    document.getElementById('pinInput').value=''; document.getElementById('pinInput').focus();
+  }
+}
 function showTab(t){
+
  if(t==='teacher' && isStudentMode){ alert('學生掃碼模式無法進入老師端'); return; }
  if(t==='teacher'){
-   const pin = prompt('請輸入老師端密碼（預設 8888）：');
+   const pin = prompt('請輸入老師端密碼（6 碼）：');
    if(pin===null) return;
    if(pin!==TEACHER_PIN){ alert('密碼錯誤，無法進入老師端'); return; }
  }
@@ -340,5 +366,5 @@ function emailCSV(){
  const di=document.getElementById('deviceInfo'); if(di) di.textContent='你的裝置：'+getDeviceLabel(); renderList();
 })();
 </script>
-</body>
+<script>document.getElementById("pinInput").addEventListener("keydown", function(e){ if(e.key==="Enter") checkTeacherPin(); });</script></body>
 </html>
