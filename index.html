@@ -129,6 +129,10 @@ function setClass(cls){
   var tl = document.getElementById('totalLabel'); if(tl) tl.textContent = tot ? tot : '尚未匯入名單';
   const el = document.getElementById('classLabel'); if(el) el.textContent = currentClassName;
   const sel = document.getElementById('classSelect'); if(sel) sel.value = cls;
+  // 學生端也要同步，不然會出現「裡面是 G 班，畫面卻顯示 A 班」
+  const sel2 = document.getElementById('studentClassSelect'); if(sel2) sel2.value = cls;
+  const el2 = document.getElementById('classLabel2'); if(el2) el2.textContent = currentClassName;
+  const info = document.getElementById('studentClassInfo'); if(info) info.textContent = '你正在簽到：'+currentClassName+'（QR-Code 已鎖定班級），輸入學號會自動顯示姓名';
 }
 
 const ROSTER = {"51102101": "酈以信", "51102137": "莊函璇", "51102146": "黃靖雯", "51102162": "蔡念竺", "51111103": "林芯柔", "51111114": "盧蔚瀅", "51111116": "蕭丞妘", "51111118": "廖妍婷", "51111127": "蔣瑋柏", "51208104": "王詠誠", "51208107": "郭秦安", "51208142": "陳睿軒", "51208157": "王品淳", "51211123": "張郁琦", "51211134": "黃家竩", "51311112": "蔡欣霓", "51311117": "李承翰", "51411101": "陳乙瑩", "51411102": "潘芊君", "51411103": "陳栢薰", "51411104": "王冠琳", "51411105": "陳宜如", "51411106": "陳映彤", "51411107": "錢瑞竺", "51411108": "張芯瑜", "51411109": "羅又綺", "51411110": "黃品璇", "51411111": "王湘惠", "51411112": "周子昀", "51411113": "王奕涵", "51411114": "陳霈臻", "51411115": "溫紫軒", "51411116": "許珈瑄", "51411117": "陳畇蓁", "51411118": "趙宥閔", "51411119": "林睿瑜", "51411120": "鄒采穎", "51411121": "姚宇潔", "51411122": "林煥宸", "51411123": "吳玥儀", "51411124": "林知妍", "51411125": "游沛亞", "51411126": "黃優莉", "51411127": "徐詩婷", "51411128": "賴竽澄", "51411129": "吳若菡", "51411130": "楊予彤", "51411131": "陳翊忻", "51411133": "王秭唯", "51411134": "林芯瑩", "51411135": "陳奕勛", "51411136": "許芳睿", "51411137": "劉子綺", "51411138": "余婕昕", "51411139": "蔡沛彤", "51411140": "連珈儀", "51411141": "莊沛穎", "51411142": "張有志", "51411143": "簡亨諭", "51411144": "黃玟妤", "51411145": "白香盈"};
@@ -360,7 +364,7 @@ function emailCSV(){
 // 解析掃碼參數
 (function(){
  const p=new URLSearchParams(window.location.search);
- const clsParam = p.get('cls'); if(clsParam && CLASSES[clsParam]){ setClass(clsParam); } if(p.get('mode')==='student'){ isStudentMode=true; const tt=document.getElementById('tabTeacher'); if(tt) tt.style.display='none'; const note=document.createElement('p'); note.textContent='學生掃碼模式：已隱藏老師端，無法切換到老師操作'; note.className='muted'; note.style.background='#fff7e6'; note.style.padding='8px'; note.style.borderRadius='8px'; document.querySelector('.wrap').prepend(note); showTab('student'); const k=p.get('k'); if(k) document.getElementById('studentTypeLabel').textContent = k==='checkout'?'簽退':'簽到';
+ const clsParam = p.get('cls'); if(clsParam && CLASSES[clsParam]){ setClass(clsParam); } if(p.get('mode')==='student'){ isStudentMode=true; const ss=document.getElementById('studentClassSelect'); if(ss) ss.disabled=true; const tt=document.getElementById('tabTeacher'); if(tt) tt.style.display='none'; const note=document.createElement('p'); note.textContent='學生掃碼模式：已隱藏老師端，無法切換到老師操作'; note.className='muted'; note.style.background='#fff7e6'; note.style.padding='8px'; note.style.borderRadius='8px'; document.querySelector('.wrap').prepend(note); showTab('student'); const k=p.get('k'); if(k) document.getElementById('studentTypeLabel').textContent = k==='checkout'?'簽退':'簽到';
   document.getElementById('studentClassInfo').textContent='你正在簽到：'+currentClassName+'（QR-Code 已鎖定班級），輸入學號會自動顯示姓名';
  document.getElementById('studentSessionInfo').textContent='你正在掃碼簽到，場次：'+(p.get('s')||'')+' · 這是新的一堂課，可以用同一支手機重新簽到'; }
  const di=document.getElementById('deviceInfo'); if(di) di.textContent='你的裝置：'+getDeviceLabel(); renderList();
