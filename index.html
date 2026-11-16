@@ -340,7 +340,7 @@ function renderList(){
  else absentHtml += absent.map(([id,name])=> id+' '+name).join('、');
  absentHtml += '</div>';
  area.innerHTML = h+'</table>' + absentHtml;
- const csv = '課程,姓名,學號,類型,時間,裝置,狀態\n' + records.map(r=>['', '', '',r.name,r.id,r.email,r.type==='checkin'?'簽到':'簽退',r.status||'準時',r.time,r.deviceLabel||r.deviceId||''].join(',')).join('\n');
+ const csv = '課程,姓名,學號,類型,時間,裝置,狀態\n' + records.map(r=>[(r.course||currentClassName||'').replace(/,/g,' '),(r.name||'').replace(/,/g,' '),r.id||'',r.type==='checkin'?'簽到':'簽退',(r.time||'').replace(/,/g,' '),(r.deviceLabel||r.deviceId||'').replace(/,/g,' '),r.status||'準時'].join(',')).join('\n');
  document.getElementById('csvPreview').textContent=csv;
 }
 function exportCSV(){
