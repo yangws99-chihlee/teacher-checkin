@@ -314,8 +314,21 @@ function startNewClass(){
 function syncFromSheet(){
   if(!USE_GAS){ alert('尚未設定 Google 試算表網址，請先照教學設定 GAS_URL'); return; }
   fetch(GAS_URL+'?action=list').then(r=>r.json()).then(data=>{
-    if(Array.isArray(data) && data.length){ records=data; localStorage.setItem('chem_records', JSON.stringify(records)); renderList(); alert('已從試算表同步 '+data.length+' 筆'); }
-    else alert('試算表目前尚無資料');
+    if(Array.isArray(data)){
+      // 合併，不是覆蓋：試算表還沒寫進去的那筆，會被覆蓋掉不見，這就是上次學生不見的原因
+      var key = function(x){ return (x.id||'')+'|'+(x.type||'')+'|'+(x.time||''); };
+      var seen = {};
+      records.forEach(function(x){ seen[key(x)] = true; });
+      var added = 0;
+      data.forEach(function(x){
+        // 試算表回來的 type 是 checkout/checkin 或 簽退/簽到，要統一
+        if(x.type==='簽退') x.type='checkout';
+        if(x.type==='簽到') x.type='checkin';
+        if(!seen[key(x)]){ records.push(x); seen[key(x)]=true; added++; }
+      });
+      localStorage.setItem('chem_records', JSON.stringify(records)); renderList();
+      alert('已同步，試算表 '+data.length+' 筆，本機共 '+records.length+' 筆（已保留還沒寫進試算表的那幾筆，不會再不見）');
+    } else alert('試算表目前尚無資料');
   }).catch(()=>alert('同步失敗，請檢查 GAS 網址與佈署權限是否為「所有人」'));
 }
 
