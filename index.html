@@ -291,7 +291,7 @@ function doCheckin(){
  const diffMin = (Date.now() - startMs) / 60000;
  let status = '準時';
  if(type==='checkin' && diffMin > LATE_MINUTES) status='遲到';
- const rec={id:id,name:finalName,email:email,type:type,time:new Date().toLocaleString(),course:currentClassName,room:'',teacher:'楊老師',deviceId:deviceId,deviceLabel:deviceLabel,session:currentSession};
+ const rec={id:id,name:finalName,email:email,type:type,time:new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false}),course:currentClassName,room:'',teacher:'楊老師',deviceId:deviceId,deviceLabel:deviceLabel,session:currentSession};
  // 寫到 Google 試算表（共用資料庫）
  if(USE_GAS){
    fetch(GAS_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(rec)}).catch(()=>{});
@@ -323,6 +323,7 @@ function syncFromSheet(){
       data.forEach(function(x){
         // 試算表回來的 type 是 checkout/checkin 或 簽退/簽到，要統一
         if(x.type==='簽退') x.type='checkout';
+        if(x.time && String(x.time).indexOf('T')>-1){ try{ var d=new Date(x.time); x.time = d.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false}); }catch(e){} }
         if(x.type==='簽到') x.type='checkin';
         if(!seen[key(x)]){ records.push(x); seen[key(x)]=true; added++; }
       });
